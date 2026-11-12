@@ -947,6 +947,7 @@ body{font-size:17px}
 
             <div class="heroActions">
               <a class="btn btnPrimary" href="https://hplgames-rgb.github.io/ball-drop-poc/" target="_blank" rel="noopener">Launch Alpha</a>
+              <span id="alphaSetupAction" hidden><button class="btn btnSecondary" type="button">Alpha Access &amp; Setup</button></span>
               <a class="btn btnSecondary" href="https://t.me/+lGU2DBQ836xjNzFh" target="_blank" rel="noopener">Give Feedback</a>
             </div>
           </div>
@@ -1270,14 +1271,40 @@ const close=modal.querySelector('.alphaClose');
 const guide=document.getElementById('alphaWalletGuide');
 let opener=null;
 function openWelcome(e){e.preventDefault();opener=e.currentTarget;modal.showModal();document.body.classList.add('alphaWelcomeOpen');}
-document.querySelectorAll('a[href="https://hplgames-rgb.github.io/ball-drop-poc/"]').forEach(link=>{if(!modal.contains(link))link.addEventListener('click',openWelcome);});
+const gameLink=document.getElementById('alphaEnter');
+const gameUrl=new URL(gameLink.href);
+const gameLinks=document.querySelectorAll(`a[href="${gameUrl.href}"]`);
+const userAgent=navigator.userAgent;
+const inMetaMask=/MetaMaskMobile/i.test(userAgent);
+const onMobileDevice=inMetaMask
+  || /Android|iPhone|iPad|iPod/i.test(userAgent)
+  || navigator.userAgentData?.platform==='Android'
+  || (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints>1);
+
+if(onMobileDevice){
+  const playUrl=inMetaMask
+    ? gameUrl.href
+    : `https://link.metamask.io/dapp/${gameUrl.host}${gameUrl.pathname}`;
+  gameLinks.forEach(link=>{
+    link.href=playUrl;
+    link.removeAttribute('target');
+  });
+  if(!inMetaMask)gameLink.textContent='Open in MetaMask →';
+  const setupAction=document.getElementById('alphaSetupAction');
+  setupAction.hidden=false;
+  setupAction.querySelector('button').addEventListener('click',openWelcome);
+}else{
+  gameLinks.forEach(link=>{
+    if(!modal.contains(link))link.addEventListener('click',openWelcome);
+  });
+}
 close.addEventListener('click',()=>modal.close());
 modal.addEventListener('close',()=>{document.body.classList.remove('alphaWelcomeOpen');if(opener)opener.focus();});
 document.getElementById('alphaGuideOpen').addEventListener('click',()=>{guide.open=true;guide.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});guide.querySelector('summary').focus();});
 const tabs=[document.getElementById('mobileGuideTab'),document.getElementById('desktopGuideTab')];
 function selectTab(tab){tabs.forEach(t=>{const selected=t===tab;t.setAttribute('aria-selected',String(selected));t.tabIndex=selected?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!selected;});}
 tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>selectTab(tab));tab.addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){e.preventDefault();const next=tabs[e.key==='Home'?0:e.key==='End'?1:1-i];selectTab(next);next.focus();}});});
-selectTab(tabs[matchMedia('(pointer:coarse)').matches?0:1]);
+selectTab(tabs[onMobileDevice?0:1]);
 })();
 </script>
 
