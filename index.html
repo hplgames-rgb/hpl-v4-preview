@@ -253,6 +253,7 @@
       <button id="logoutBtn" type="button" class="wallet-refresh" style="margin:0" hidden>Log Out</button>
       <button id="fullscreenBtn" type="button" class="wallet-refresh" style="margin:0" aria-pressed="false">Full screen</button>
       <button id="myWalletBtn" type="button" class="wallet-refresh" style="margin:0">My Wallet</button>
+      <button id="hplStreakOpen" type="button" class="wallet-refresh" style="margin:0" aria-haspopup="dialog" aria-controls="hplStreakDialog">🔥 Daily Streak</button>
       <details class="help-menu" id="helpMenu">
         <summary aria-label="Open Help menu">☰ Help</summary>
         <div class="help-panel">
@@ -2499,6 +2500,18 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
 </script>
 
 <button id="soundToggle" type="button" aria-pressed="false" aria-label="Enable game sound">Sound: Off</button>
+<!-- V4 Daily Streak lives in its own overlay, separate from the Ball Drop layout. -->
+<style>
+#hplStreakDialog{width:min(780px,calc(100vw - 24px));max-height:min(88dvh,900px);overflow:auto;border:1px solid #33536c;border-radius:18px;padding:0;background:#07111f;color:#f4f7fb;box-shadow:0 24px 100px #000b}
+#hplStreakDialog::backdrop{background:rgba(1,8,18,.82);backdrop-filter:blur(5px)}
+#hplStreakDialog .hpl-streak-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 20px 0}
+#hplStreakDialog .hpl-streak-top h2{margin:0;font-size:20px}
+#hplStreakClose{border:1px solid #33536c;border-radius:10px;background:#10243b;color:#fff;padding:8px 12px;cursor:pointer}
+#hplStreakPanel{margin:0!important;max-width:none!important;border:0!important;background:transparent!important;box-shadow:none!important}
+@media(max-width:600px){#hplStreakDialog .hpl-streak-top{padding:14px 14px 0}#hplStreakDialog .hpl-streak-top h2{font-size:18px}}
+</style>
+<dialog id="hplStreakDialog" aria-labelledby="hplStreakDialogTitle">
+  <div class="hpl-streak-top"><h2 id="hplStreakDialogTitle">🔥 Daily Streak</h2><button type="button" id="hplStreakClose" aria-label="Close Daily Streak">✕ Close</button></div>
 <!-- HPL V4 Checkpoint 1 — development-only daily streak panel -->
 <style>
 #hplStreakPanel{position:relative;max-width:1250px;margin:12px auto;padding:16px;border:1px solid #33536c;border-radius:14px;background:#0d1b2d;color:#f4f7fb;font:14px Inter,Segoe UI,Arial,sans-serif}
@@ -2517,6 +2530,19 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
   <div class="hpl-streak-actions"><span id="hplStreakWallet">○ Connect wallet</span><span id="hplStreakRound">○ Play one Ball Drop round</span><button type="button" id="hplStreakRefresh">Refresh status</button></div>
   <p class="hpl-streak-meta">A completed round counts even with zero points. No HPL required. Rewards are not enabled for this checkpoint.</p>
 </section>
+</dialog>
+<script>
+/* The streak dialog shares the existing game's authenticated wallet session. */
+(()=>{
+  const dialog=document.getElementById("hplStreakDialog");
+  const open=document.getElementById("hplStreakOpen");
+  const close=document.getElementById("hplStreakClose");
+  if(!dialog||!open||!close)return;
+  open.addEventListener("click",()=>{if(!dialog.open)dialog.showModal();window.dispatchEvent(new Event("hpl:streak-opened"));});
+  close.addEventListener("click",()=>dialog.close());
+  dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
+})();
+</script>
 <script>
 /* This script runs after the existing game script and shares its authenticated session state. */
 (()=>{
@@ -2575,6 +2601,7 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
   }
   el("hplStreakRefresh").addEventListener("click",()=>{void refresh();});
   window.addEventListener("hpl:ball-drop-session-completed",()=>{void refresh();});
+  window.addEventListener("hpl:streak-opened",()=>{void refresh();});
   window.addEventListener("focus",()=>{void refresh();});
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)void refresh();});
   setInterval(()=>{void refresh();},30000);
