@@ -786,6 +786,31 @@
 
 .alphaVisual.ballDropArtwork,.gameMedia.ballDropArtwork{padding:0;min-height:0;overflow:hidden;border-style:solid;align-self:center;width:100%;}
 .ballDropArtwork img{display:block;width:100%;height:auto;}
+
+/* HPL quick explainer — responsive standalone section */
+.hpl-how{position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(0,179,255,.09),transparent 62%)}
+.hpl-how-heading{text-align:center;max-width:1150px;margin:0 auto 44px}
+.hpl-how-heading .kicker{color:#1ce5ef;letter-spacing:.16em;font-weight:850}
+.hpl-how-heading h2{max-width:1120px;margin:12px auto 16px;font-size:clamp(2rem,4vw,3.45rem);line-height:1.13;letter-spacing:-.04em}
+.hpl-how-heading p{max-width:800px;margin:0 auto;color:#b6c9d9;font-size:clamp(1rem,1.6vw,1.17rem);line-height:1.65}
+.hpl-how-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;counter-reset:hpl}
+.hpl-how-step{position:relative;min-width:0;min-height:330px;text-align:center;padding:30px 22px 27px;border:1.5px solid #008df6;border-radius:24px;background:linear-gradient(155deg,#0a182e,#06111f 65%,#09223c);box-shadow:inset 0 1px 20px rgba(0,153,255,.09),0 12px 34px rgba(0,0,0,.18)}
+.hpl-how-step:nth-child(2),.hpl-how-step:nth-child(3){border-color:#00c7ce}
+.hpl-how-step:not(:last-child):after{content:"›";position:absolute;z-index:2;right:-23px;top:42%;font-size:58px;line-height:1;color:#11bdfb;font-weight:800;text-shadow:0 0 14px #0089ff}
+.hpl-how-icon{height:100px;display:grid;place-items:center;font-size:64px;filter:drop-shadow(0 0 13px rgba(0,214,255,.48))}
+.hpl-how-number{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 12px;border-radius:50%;background:#28d9f4;color:#042038;font-size:15px;font-weight:900}
+.hpl-how-step h3{margin:0 0 12px;font-size:clamp(1.4rem,2vw,1.9rem);letter-spacing:-.025em;color:#f3f8ff}
+.hpl-how-step p{margin:0;color:#c2d2e3;line-height:1.65;font-size:15px}
+.hpl-how-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:34px;padding:25px 22px;border:1px solid #1179bb;border-radius:24px;background:linear-gradient(105deg,rgba(2,52,77,.75),rgba(8,22,44,.95));box-shadow:inset 0 1px 18px rgba(0,193,245,.1)}
+.hpl-how-benefits>div{display:flex;align-items:center;gap:17px;padding:4px 24px;min-width:0}
+.hpl-how-benefits>div+div{border-left:1px solid rgba(100,180,225,.35)}
+.hpl-how-benefit-icon{flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:rgba(0,180,222,.13);color:#3eeeff;font-size:38px}
+.hpl-how-benefits strong{display:block;color:#f3f8ff;font-size:17px;margin-bottom:5px}
+.hpl-how-benefits small{display:block;color:#b6c9d9;font-size:13px;line-height:1.5}
+.hpl-how-note{margin:20px auto 0;text-align:center;max-width:940px;color:#8298ae;font-size:12px;line-height:1.6}
+@media(max-width:1000px){.hpl-how-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.hpl-how-step{min-height:295px}.hpl-how-step:after{display:none}.hpl-how-benefits>div{padding:4px 12px}.hpl-how-benefit-icon{width:46px;height:46px;font-size:29px}}
+@media(max-width:700px){.hpl-how-heading{margin-bottom:26px}.hpl-how-steps{grid-template-columns:1fr;gap:14px}.hpl-how-step{min-height:0;padding:24px 20px}.hpl-how-icon{height:76px;font-size:52px}.hpl-how-benefits{grid-template-columns:1fr;padding:12px 18px;margin-top:22px}.hpl-how-benefits>div{padding:14px 4px}.hpl-how-benefits>div+div{border-left:0;border-top:1px solid rgba(100,180,225,.3)}}
+
 </style>
 </head>
 
@@ -896,80 +921,45 @@
       </div>
     </section>
 
-    <section id="ecosystem">
+    <section id="ecosystem" class="hpl-how">
       <div class="wrap">
-        <div class="sectionHead reveal">
-          <div>
-            <div class="kicker">The HPL Ecosystem</div>
-            <h2>One economy. Multiple games.</h2>
-          </div>
-          <p>
-            HPL is intended to sit underneath the games rather than belong to a single title.
-            Games can evolve while the shared token economy matures underneath them.
-          </p>
+        <div class="hpl-how-heading reveal">
+          <div class="kicker">HOW IT WORKS</div>
+          <h2>Play Games. Earn HPL. Be Part of the Ecosystem.</h2>
+          <p>One connected gaming ecosystem where participation, eligible rewards, and token ownership come together.</p>
         </div>
-
-        <div class="cards3">
-          <article class="card reveal">
-            <div class="cardIcon">🪙</div>
-            <h3>HPL Token</h3>
-            <p>
-              The core token layer handles balances, trading rules, taxes, anti-whale protections,
-              and routing funds into rewards, reflections, and project operations.
-            </p>
+        <div class="hpl-how-steps" aria-label="How HPL Games works">
+          <article class="hpl-how-step reveal">
+            <div class="hpl-how-icon" aria-hidden="true">🎮</div>
+            <span class="hpl-how-number">1</span>
+            <h3>Play</h3>
+            <p>Jump into HPL games like Ball Drop and upcoming Bingo.</p>
           </article>
-
-          <article class="card reveal">
-            <div class="cardIcon">✨</div>
-            <h3>Holder Reflections</h3>
-            <p>
-              Eligible holders can accumulate and claim HPL reflections on-chain without staking
-              or locking their tokens.
-            </p>
+          <article class="hpl-how-step reveal">
+            <div class="hpl-how-icon" aria-hidden="true">🪙</div>
+            <span class="hpl-how-number">2</span>
+            <h3>Earn</h3>
+            <p>Complete eligible activities for a chance to share in HPL game rewards.</p>
           </article>
-
-          <article class="card reveal">
-            <div class="cardIcon">🏆</div>
-            <h3>Game Rewards</h3>
-            <p>
-              A dedicated reward layer can receive HPL generated by ecosystem activity and reserve
-              claimable rewards for players after validated game results.
-            </p>
+          <article class="hpl-how-step reveal">
+            <div class="hpl-how-icon" aria-hidden="true">🔄</div>
+            <span class="hpl-how-number">3</span>
+            <h3>Hold &amp; Grow</h3>
+            <p>Eligible HPL holders can receive reflections generated by ecosystem activity.</p>
+          </article>
+          <article class="hpl-how-step reveal">
+            <div class="hpl-how-icon" aria-hidden="true">📈</div>
+            <span class="hpl-how-number">4</span>
+            <h3>Repeat</h3>
+            <p>Keep playing and participating as the HPL ecosystem expands.</p>
           </article>
         </div>
-
-        <div class="loop reveal" aria-label="HPL economic loop">
-          <div class="loopStep">
-            <div class="loopNum">1</div>
-            <b>Acquire HPL</b>
-            <span>Enter the ecosystem.</span>
-          </div>
-          <div class="loopStep">
-            <div class="loopNum">2</div>
-            <b>Hold</b>
-            <span>Participate in reflections.</span>
-          </div>
-          <div class="loopStep">
-            <div class="loopNum">3</div>
-            <b>Play</b>
-            <span>Compete in HPL games.</span>
-          </div>
-          <div class="loopStep">
-            <div class="loopNum">4</div>
-            <b>Spend</b>
-            <span>Use HPL in-game.</span>
-          </div>
-          <div class="loopStep">
-            <div class="loopNum">5</div>
-            <b>Earn</b>
-            <span>Win claimable rewards.</span>
-          </div>
-          <div class="loopStep">
-            <div class="loopNum">6</div>
-            <b>Repeat</b>
-            <span>Hold, spend, or trade again.</span>
-          </div>
+        <div class="hpl-how-benefits reveal" aria-label="HPL ecosystem highlights">
+          <div><span class="hpl-how-benefit-icon" aria-hidden="true">◇</span><span><strong>One Token, Multiple Games</strong><small>A shared HPL economy across our games.</small></span></div>
+          <div><span class="hpl-how-benefit-icon" aria-hidden="true">♢</span><span><strong>Fair &amp; Transparent</strong><small>Verifiable activity, rewards, and reflections.</small></span></div>
+          <div><span class="hpl-how-benefit-icon" aria-hidden="true">♧</span><span><strong>Built for Players</strong><small>Play and participate in a growing community.</small></span></div>
         </div>
+        <p class="hpl-how-note">Rewards and reflections depend on eligibility, activity, and program terms; they are not guaranteed. HPL Games is in development.</p>
       </div>
     </section>
 
