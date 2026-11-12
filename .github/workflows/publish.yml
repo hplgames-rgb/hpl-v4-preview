@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - index.html
+      - website/**
       - assets/**
       - .github/workflows/publish.yml
   workflow_dispatch:
