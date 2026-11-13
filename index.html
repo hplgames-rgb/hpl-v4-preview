@@ -2595,6 +2595,10 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
 <style>
 #hplStreakPanel{position:relative;max-width:1250px;margin:12px auto;padding:16px;border:1px solid #33536c;border-radius:14px;background:#0d1b2d;color:#f4f7fb;font:14px Inter,Segoe UI,Arial,sans-serif}
 #hplStreakPanel .hpl-streak-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
+#hplStreakPanel .hpl-streak-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin:12px 0 6px}
+#hplStreakPanel .hpl-streak-summary[hidden]{display:none}
+#hplStreakPanel .hpl-streak-stat{padding:10px 12px;border:1px solid #24405e;border-radius:10px;background:#10243b}
+#hplStreakPanel .hpl-streak-stat strong{display:block;margin-top:4px;font-size:16px;overflow-wrap:anywhere}
 #hplStreakPanel .hpl-streak-day{padding:12px 6px;text-align:center;border:1px solid #24405e;border-radius:10px;background:#10243b}
 #hplStreakPanel .hpl-streak-day.done{border-color:#38e39b;color:#38e39b}
 #hplStreakPanel .hpl-streak-day.pending{border-color:#ffd34d}
@@ -2605,6 +2609,12 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
 <section id="hplStreakPanel" aria-label="Daily streak missions">
   <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong>🔥 V4 Daily Streak · Testnet</strong><span class="hpl-streak-meta">Admin-scheduled UTC days</span></div>
   <p id="hplStreakStatus" role="status">Connect your wallet to begin today's missions.</p>
+  <div class="hpl-streak-summary" id="hplStreakSummary" hidden>
+    <div class="hpl-streak-stat"><span class="hpl-streak-meta">Streak pool</span><strong id="hplStreakPool">—</strong></div>
+    <div class="hpl-streak-stat"><span class="hpl-streak-meta">Wallets still in the running</span><strong id="hplStreakWalletCount">—</strong></div>
+    <div class="hpl-streak-stat"><span class="hpl-streak-meta">Estimated payout per qualifying wallet</span><strong id="hplStreakEstimate">—</strong></div>
+  </div>
+  <p class="hpl-streak-meta" id="hplStreakParticipation" hidden></p>
   <div class="hpl-streak-days" id="hplStreakDays"><div class="hpl-streak-day">Day 1 · —</div><div class="hpl-streak-day">Day 2 · —</div><div class="hpl-streak-day">Day 3 · —</div></div>
   <div class="hpl-streak-actions"><span id="hplStreakWallet">○ Connect wallet</span><span id="hplStreakRound">○ Score 50+ in a completed round</span><button type="button" id="hplStreakRefresh">Refresh status</button></div>
   <p class="hpl-streak-meta">Complete one server-accepted Ball Drop round with at least 50 points. A single ball landing in a 0.5× bucket qualifies. No HPL required; streak payouts are disabled during testing.</p>
@@ -2629,10 +2639,34 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
   const panel=el("hplStreakPanel");
   if(!panel)return;
   const dayLabel=day=>new Date(day+"T00:00:00Z").toLocaleDateString(undefined,{month:"short",day:"numeric",timeZone:"UTC"});
+  const dialogOpen=()=>el("hplStreakDialog").open;
   let busy=false, refreshQueued=false, checkedToken=null, checkedDay=null, activeToken=null;
   const setStatus=text=>{el("hplStreakStatus").textContent=text;};
+  function formatStreakHpl(value){
+    if(typeof value!=="string"||!/^\d+$/.test(value))return "—";
+    const wei=BigInt(value);
+    const cent=10n**16n;
+    if(wei>0n&&wei<cent)return "<0.01 TEST-HPL";
+    const cents=wei/cent;
+    return (cents/100n).toLocaleString()+"."+(cents%100n).toString().padStart(2,"0")+" TEST-HPL";
+  }
+  function showSummary(summary){
+    const grid=el("hplStreakSummary");
+    const progress=el("hplStreakParticipation");
+    grid.hidden=!summary;
+    progress.hidden=!summary;
+    if(!summary)return;
+    const wallets=summary.wallets_in_running;
+    const completed=summary.wallets_completed_today;
+    el("hplStreakPool").textContent=formatStreakHpl(summary.pool_wei);
+    el("hplStreakWalletCount").textContent=wallets.toLocaleString();
+    el("hplStreakEstimate").textContent=wallets?formatStreakHpl(summary.estimated_payout_wei):"—";
+    progress.textContent=completed.toLocaleString()+" of "+wallets.toLocaleString()
+      +" wallets still in the running completed today. Estimate if the streak ended now. Test payouts disabled.";
+  }
   const reset=()=>{
     checkedToken=null;checkedDay=null;activeToken=null;
+    showSummary(null);
     el("hplStreakWallet").textContent="○ Connect wallet";
     el("hplStreakRound").textContent="○ Score 50+ in a completed round";
     el("hplStreakDays").innerHTML="";
@@ -2643,17 +2677,23 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
     if(busy){refreshQueued=true;return;}
     const token=typeof state!=="undefined" ? state.sessionToken : null;
     if(!token){if(activeToken!==null)reset();return;}
-    if(typeof testingPaused!=="undefined"&&testingPaused){setStatus("Alpha testing is paused.");return;}
+    if(typeof testingPaused!=="undefined"&&testingPaused){showSummary(null);setStatus("Alpha testing is paused.");return;}
     busy=true;activeToken=token;
     try{
       const utcToday=new Date().toISOString().slice(0,10);
       const action=checkedToken===token&&checkedDay===utcToday?"status":"checkin";
-      const result=await edgeRequest("hpl-daily-streak",{session_token:token,action});
+      const result=await edgeRequest("hpl-daily-streak",{session_token:token,action,include_summary:dialogOpen()});
       if(state.sessionToken!==token)return;
       checkedToken=token;
       checkedDay=result.today||utcToday;
       const today=result.today_status||{};
       const epoch=result.epoch;
+      showSummary(epoch?result.summary:null);
+      if(epoch&&dialogOpen()&&!result.summary){
+        const progress=el("hplStreakParticipation");
+        progress.hidden=false;
+        progress.textContent="Streak pool and wallet totals are temporarily unavailable.";
+      }
       const history=Array.isArray(result.history)?result.history:[];
       const days=el("hplStreakDays");days.replaceChildren();
       if(!epoch){
@@ -2672,7 +2712,7 @@ window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById(
         d.title=day.day+" UTC";days.append(d);
       }
       setStatus(today.qualified?"Today's missions complete! Epoch #"+epoch.id+" · "+result.consecutive_days+" / "+result.streak_length:"Streak epoch #"+epoch.id+" · "+epoch.starts_on+" through "+epoch.ends_on+" (end exclusive, UTC). Complete today's two missions.");
-    }catch(err){if(state.sessionToken===token)setStatus("Streak status unavailable: "+(err?.message||"Please retry"));}
+    }catch(err){if(state.sessionToken===token){showSummary(null);setStatus("Streak status unavailable: "+(err?.message||"Please retry"));}}
     finally{
       busy=false;
       if(refreshQueued){refreshQueued=false;queueMicrotask(()=>{void refresh();});}
